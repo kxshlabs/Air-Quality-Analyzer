@@ -43,7 +43,7 @@ WORLD_CAPITALS = [
     "New York",      # USA
     "Ottawa",        # Canada 
     "Mexico City",   # Mexico 
-    "Sao Paulo",     # Brazil 
+    "Warsaw",        # Poland 
     "Moscow",        # Russia 
     "Hanoi",         # Vietnam 
     "Singapore",     # Singapore
