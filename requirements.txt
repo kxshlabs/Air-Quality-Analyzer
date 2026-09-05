@@ -1,0 +1,14 @@
+pandas
+numpy
+requests
+plotly
+folium
+streamlit
+scikit-learn
+scipy
+python-dotenv
+openpyxl
+nbformat
+ipykernel
+streamlit-folium
+

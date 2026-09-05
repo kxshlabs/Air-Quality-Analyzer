@@ -1,0 +1,7 @@
+# Air Quality Analyzer
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+
