@@ -1,7 +1,7 @@
 """
 WAQI Data Fetcher Module for Air Quality Analyzer.
 Pulls real-time air quality measurements (AQI, PM2.5, PM10, NO2, CO) from 
-the World Air Quality Index (WAQI) API for 20 major Indian cities and 
+the World Air Quality Index (WAQI) API for 20 major world capitals and 
 saves the aggregated dataset to CSV format.
 """
 
@@ -26,12 +26,28 @@ WAQI_TOKEN = os.getenv("WAQI_API_KEY")
 # Base URL for WAQI Feed API
 BASE_URL = "https://api.waqi.info/feed"
 
-# Full list of 20 Indian cities to monitor
-CITIES = [
-    "Delhi", "Mumbai", "Pune", "Bangalore", "Chennai", "Hyderabad",
-    "Kolkata", "Ahmedabad", "Jaipur", "Lucknow", "Kanpur", "Patna",
-    "Bhopal", "Nagpur", "Surat", "Vadodara", "Amritsar", "Varanasi",
-    "Indore", "Agra"
+# Full list of 20 World Capitals Across the world
+WORLD_CAPITALS = [
+    "Beijing",       # China
+    "London",        # UK 
+    "Paris",         # France 
+    "Tokyo",         # Japan 
+    "Seoul",         # South Korea 
+    "Bangkok",       # Thailand 
+    "Santiago",      # Chile
+    "Rome",          # Italy 
+    "Delhi",         # India 
+    "São Paulo",     # Brazil 
+    "Berlin",        # Germany 
+    "Sydney",        # Australia 
+    "New York",      # USA
+    "Ottawa",        # Canada 
+    "Mexico City",   # Mexico 
+    "Sao Paulo",     # Brazil 
+    "Moscow",        # Russia 
+    "Hanoi",         # Vietnam 
+    "Singapore",     # Singapore
+    "Ulaanbaatar"    # Mongolia 
 ]
 
 
@@ -114,7 +130,7 @@ def fetch_city_aqi(city_name: str) -> pd.DataFrame:
 
 def fetch_all_cities() -> pd.DataFrame:
     """
-    Loops through all 20 target Indian cities, calls fetch_city_aqi() for each,
+    Loops through all 20 target world capitals, calls fetch_city_aqi() for each,
     aggregates valid results, and exports the data to data/raw/aqi_raw.csv.
 
     Returns:
@@ -122,15 +138,15 @@ def fetch_all_cities() -> pd.DataFrame:
                       or an empty DataFrame if no data could be retrieved.
     """
     # Step 1: Start notification
-    print(f"Starting WAQI data fetch for {len(CITIES)} Indian cities...")
+    print(f"Starting WAQI data fetch for {len(WORLD_CAPITALS)} world capitals...")
 
     # Step 2: Container for city DataFrames
     all_dfs = []
     skipped_cities = []
 
     # Step 3: Loop through cities with index
-    for idx, city in enumerate(CITIES, start=1):
-        print(f"[{idx}/{len(CITIES)}] Fetching {city}...")
+    for idx, city in enumerate(WORLD_CAPITALS, start=1):
+        print(f"[{idx}/{len(WORLD_CAPITALS)}] Fetching {city}...")
         df_city = fetch_city_aqi(city)
 
         if not df_city.empty:
