@@ -11,6 +11,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 from backend.src.data_fetch import fetch_city_aqi, fetch_all_cities, WORLD_CAPITALS, WAQI_TOKEN, RAW_DATA_PATH
 from backend.src.cleaning import load_raw_data, standardize_columns, flag_data_quality, handle_missing_values, run_cleaning_pipeline, PROCESSED_DATA_PATH
+from backend.src.db_writer import (
+    get_db_client,
+    write_aqi_data,
+    verify_db_contents,
+    MONGO_URI
+)
 
 results = []
 
@@ -24,7 +30,7 @@ def check(label: str, condition: bool):
 
 
 def run_health_check():
-    """Runs end-to-end system health checks for data fetcher and data cleaning pipeline."""
+    """Runs end-to-end system health checks for data fetcher, cleaning, and MongoDB writer."""
     print("==========================================")
     print("AIR QUALITY ANALYZER — HEALTH CHECK")
     print("==========================================")
@@ -90,6 +96,28 @@ def run_health_check():
             for c in null_cities:
                 check(f"{c} — {col.upper()} still null after filling", False)
 
+    # Check 16: MONGO_URI loaded and valid
+    check("MONGO_URI loaded and valid", MONGO_URI is not None and MONGO_URI.startswith("mongodb+srv://"))
+
+    # Check 17: MongoDB Atlas connection
+    try:
+        client = get_db_client()
+        client.close()
+        check("MongoDB Atlas connection", True)
+    except Exception:
+        check("MongoDB Atlas connection", False)
+
+    # Check 18: write_aqi_data handles empty input
+    result = write_aqi_data(pd.DataFrame())
+    check("write_aqi_data handles empty input", result == 0)
+
+    # Check 19: verify_db_contents returns int >= 0
+    count = verify_db_contents()
+    check("verify_db_contents returns int >= 0", isinstance(count, int) and count >= 0)
+
+    # Check 20: Database has cities stored
+    check("Database has at least 1 city stored", count > 0)
+
     passed_count = sum(1 for s, _ in results if s == "[PASS]")
     failed_count = sum(1 for s, _ in results if s == "[FAIL]")
     total_count = len(results)
@@ -101,9 +129,9 @@ def run_health_check():
     print("==========================================")
 
     if failed_count == 0:
-        print("All systems operational — ready for analysis phase")
+        print("All systems operational — ready for API layer")
     else:
-        print("Fix failed checks before proceeding")
+        print("Fix failed checks before building API layer")
 
 
 if __name__ == "__main__":
