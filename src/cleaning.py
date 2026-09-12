@@ -7,12 +7,16 @@ Data source: World Air Quality Index (waqi.info)
 """
 
 import os
-import pandas as pd
 import numpy as np
-from datetime import datetime, timezone
+import pandas as pd
+
+RAW_DATA_PATH = os.path.join("data", "raw", "aqi_raw.csv")
+PROCESSED_DATA_PATH = os.path.join("data", "processed", "aqi_clean.csv")
+POLLUTANT_COLS = ["pm25", "pm10", "no2", "co"]
+NUMERIC_COLS = ["aqi"] + POLLUTANT_COLS
 
 
-def load_raw_data(file_path=os.path.join("data", "raw", "aqi_raw.csv")):
+def load_raw_data(file_path=RAW_DATA_PATH):
     """
     Loads raw AQI CSV data into a pandas DataFrame.
 
@@ -20,7 +24,7 @@ def load_raw_data(file_path=os.path.join("data", "raw", "aqi_raw.csv")):
         file_path (str): Path to raw CSV file.
 
     Returns:
-        pd.DataFrame: Raw loaded dataset.
+        pd.DataFrame: Raw loaded dataset or empty DataFrame if not found.
     """
     if not os.path.exists(file_path):
         print(f"[Error] Raw data file not found at {file_path}")
@@ -35,6 +39,19 @@ def load_raw_data(file_path=os.path.join("data", "raw", "aqi_raw.csv")):
         return pd.DataFrame()
 
 
+def categorize_freshness(days):
+    """Categorize days since update into freshness status string."""
+    if pd.isna(days):
+        return "Unknown"
+    if days <= 1:
+        return "Live"
+    if days <= 7:
+        return "Recent"
+    if days <= 30:
+        return "Aging"
+    return "Stale"
+
+
 def standardize_columns(df):
     """
     Standardizes column names, converts dates to datetime, converts pollutants to numeric,
@@ -47,51 +64,27 @@ def standardize_columns(df):
         pd.DataFrame: Standardized DataFrame with freshness columns added.
     """
     if df.empty:
-        return df
+        return df.copy()
 
     cleaned_df = df.copy()
-
-    # Step 1: Lowercase column names and strip whitespace
     cleaned_df.columns = [col.strip().lower() for col in cleaned_df.columns]
 
-    # Step 2: Convert date column to datetime
     if "date" in cleaned_df.columns:
-        cleaned_df["date"] = pd.to_datetime(cleaned_df["date"], errors="coerce", utc=False)
+        cleaned_df["date"] = pd.to_datetime(cleaned_df["date"], errors="coerce")
 
-    # Step 3: Convert pollutant columns to numeric
-    pollutant_cols = ["aqi", "pm25", "pm10", "no2", "co"]
-    for col in pollutant_cols:
+    for col in NUMERIC_COLS:
         if col in cleaned_df.columns:
             cleaned_df[col] = pd.to_numeric(cleaned_df[col], errors="coerce")
         else:
             cleaned_df[col] = np.nan
 
-    # Step 4: Add freshness columns
     now = pd.Timestamp.now()
     cleaned_df["days_since_update"] = (now - cleaned_df["date"]).dt.days
-
-    def categorize_freshness(days):
-        if pd.isna(days):
-            return "Unknown"
-        elif days <= 1:
-            return "Live"
-        elif days <= 7:
-            return "Recent"
-        elif days <= 30:
-            return "Aging"
-        else:
-            return "Stale"
-
     cleaned_df["freshness"] = cleaned_df["days_since_update"].apply(categorize_freshness)
 
-    # Step 5: Print freshness report
     print("\n--- Data Freshness Report ---")
-    live_count = (cleaned_df["freshness"] == "Live").sum()
-    recent_count = (cleaned_df["freshness"] == "Recent").sum()
-    aging_count = (cleaned_df["freshness"] == "Aging").sum()
-    stale_count = (cleaned_df["freshness"] == "Stale").sum()
-
-    print(f"Freshness Breakdown: Live={live_count}, Recent={recent_count}, Aging={aging_count}, Stale={stale_count}")
+    counts = cleaned_df["freshness"].value_counts()
+    print(f"Freshness Breakdown: Live={counts.get('Live', 0)}, Recent={counts.get('Recent', 0)}, Aging={counts.get('Aging', 0)}, Stale={counts.get('Stale', 0)}")
 
     stale_or_aging = cleaned_df[cleaned_df["freshness"].isin(["Stale", "Aging"])]
     if not stale_or_aging.empty:
@@ -99,8 +92,16 @@ def standardize_columns(df):
         for _, row in stale_or_aging.iterrows():
             print(f"  - {row['city']}: {row['days_since_update']} days since update ({row['freshness']})")
 
-    # Step 6: Return DataFrame
     return cleaned_df
+
+
+def evaluate_quality(valid_count):
+    """Evaluate data quality rating based on number of available pollutant measurements."""
+    if valid_count == 4:
+        return "good"
+    if valid_count in [2, 3]:
+        return "partial"
+    return "poor"
 
 
 def flag_data_quality(df):
@@ -115,30 +116,15 @@ def flag_data_quality(df):
         pd.DataFrame: DataFrame with is_high_pollution, data_quality, and freshness_status columns.
     """
     if df.empty:
-        return df
+        return df.copy()
 
     cleaned_df = df.copy()
-    pollutant_cols = ["pm25", "pm10", "no2", "co"]
-
-    # Step 1: Add is_high_pollution column (threshold 150 for world cities)
     cleaned_df["is_high_pollution"] = cleaned_df["aqi"] > 150
 
-    # Step 2: Add data_quality column based on present raw pollutants BEFORE filling
-    def evaluate_quality(row):
-        valid_count = sum(pd.notna(row[col]) for col in pollutant_cols)
-        if valid_count == 4:
-            return "good"
-        elif valid_count in [2, 3]:
-            return "partial"
-        else:
-            return "poor"
-
-    cleaned_df["data_quality"] = cleaned_df.apply(evaluate_quality, axis=1)
-
-    # Step 3: Add freshness_status column copying freshness
+    valid_counts = cleaned_df[POLLUTANT_COLS].notna().sum(axis=1)
+    cleaned_df["data_quality"] = valid_counts.apply(evaluate_quality)
     cleaned_df["freshness_status"] = cleaned_df["freshness"]
 
-    # Step 4: Print summary
     high_pol_count = cleaned_df["is_high_pollution"].sum()
     good_cities = cleaned_df[cleaned_df["data_quality"] == "good"]["city"].tolist()
     partial_cities = cleaned_df[cleaned_df["data_quality"] == "partial"]["city"].tolist()
@@ -150,7 +136,6 @@ def flag_data_quality(df):
     print(f"Partial data quality (2-3 pollutants): {len(partial_cities)} cities -> {', '.join(partial_cities)}")
     print(f"Poor data quality (0-1 pollutants): {len(poor_cities)} cities -> {', '.join(poor_cities)}")
 
-    # Step 5: Return DataFrame
     return cleaned_df
 
 
@@ -165,59 +150,54 @@ def handle_missing_values(df):
         pd.DataFrame: DataFrame with missing values imputed.
     """
     if df.empty:
-        return df
+        return df.copy()
 
     cleaned_df = df.copy()
-    pollutant_cols = ["pm25", "pm10", "no2", "co"]
 
-    # Step 1: Print missing value report
     print("\n--- Missing Value Report ---")
-    for col in pollutant_cols:
+    for col in POLLUTANT_COLS:
         missing_count = cleaned_df[col].isnull().sum()
         print(f"{col}: {missing_count} cities missing")
 
     print("\n--- Imputation Process ---")
     total_filled = 0
 
-    # Step 2: Impute missing pollutant values with global average
-    for col in pollutant_cols:
-        valid_readings = cleaned_df[col].dropna()
+    for col in POLLUTANT_COLS:
+        missing_mask = cleaned_df[col].isnull()
+        missing_count = missing_mask.sum()
 
-        if not valid_readings.empty:
-            avg_value = valid_readings.mean()
-            missing_mask = cleaned_df[col].isnull()
+        if missing_count > 0:
+            valid_readings = cleaned_df[col].dropna()
+            if not valid_readings.empty:
+                fill_value = round(valid_readings.mean(), 2)
+                missing_cities = cleaned_df.loc[missing_mask, "city"].tolist()
+                cleaned_df[col] = cleaned_df[col].fillna(fill_value)
+                total_filled += missing_count
 
-            for idx in cleaned_df[missing_mask].index:
-                city = cleaned_df.loc[idx, "city"]
-                fill_value = round(avg_value, 2)
-                cleaned_df.loc[idx, col] = fill_value
-                total_filled += 1
-                print(f"[Fill] {city} — {col} filled with national average: {fill_value}")
-        else:
-            print(f"[Warning] {col} has no valid readings across any city — leaving as NaN")
+                for city in missing_cities:
+                    print(f"[Fill] {city} — {col} filled with national average: {fill_value}")
+            else:
+                print(f"[Warning] {col} has no valid readings across any city — leaving as NaN")
 
     print(f"\n[Info] Successfully filled {total_filled} missing pollutant values across all cities.")
-
-    # Step 3: Return filled DataFrame
     return cleaned_df
 
 
-def save_processed_data(df, output_path=os.path.join("data", "processed", "aqi_clean.csv")):
+def save_processed_data(df, output_path=PROCESSED_DATA_PATH):
     """
-    Saves cleaned DataFrame to CSV and displays all 20 rows in terminal.
+    Saves cleaned DataFrame to CSV and displays first 20 rows in terminal.
     """
     if df.empty:
         print("[Warning] No cleaned data available to save.")
         return
 
-    output_dir = os.path.dirname(output_path)
-    os.makedirs(output_dir, exist_ok=True)
-
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)
-    print(f"\n==========================================")
-    print(f"Data cleaning pipeline complete!")
+
+    print("\n==========================================")
+    print("Data cleaning pipeline complete!")
     print(f"Saved {len(df)} cleaned rows to {output_path}")
-    print(f"==========================================")
+    print("==========================================")
 
     print("\nFull Processed Dataset:")
     print(df.head(20).to_string(index=False))
@@ -230,7 +210,7 @@ def run_cleaning_pipeline():
     print("Starting Air Quality Data Cleaning Pipeline...")
     raw_df = load_raw_data()
     std_df = standardize_columns(raw_df)
-    flagged_df = flag_data_quality(std_df)      # MUST run BEFORE handle_missing_values
+    flagged_df = flag_data_quality(std_df)
     clean_df = handle_missing_values(flagged_df)
     save_processed_data(clean_df)
 
