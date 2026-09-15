@@ -4,4 +4,25 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+node_modules/
+npm-debug.log*
+# Data files
+data/raw/
+data/processed/
+
+# Node
+node_modules/
+api/node_modules/
+frontend/node_modules/
+
+# Build
+frontend/dist/
+frontend/build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+#agents
+.agents/
 
