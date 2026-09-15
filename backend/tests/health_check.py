@@ -5,6 +5,8 @@ Runs all core system features end-to-end and reports live status PASS/FAIL for e
 
 import os
 import sys
+import json
+import urllib.request
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -118,6 +120,47 @@ def run_health_check():
     # Check 20: Database has cities stored
     check("Database has at least 1 city stored", count > 0)
 
+    # --- API Layer Checks (requires server running on localhost:5000) ---
+
+    def fetch_api(path):
+        """Makes a GET request to the local API server and returns parsed JSON or None."""
+        try:
+            url = f"http://localhost:5000{path}"
+            with urllib.request.urlopen(url, timeout=5) as r:
+                return json.loads(r.read())
+        except Exception:
+            return None
+
+    # Check 21: API server is reachable
+    data = fetch_api("/health")
+    check("API server running", data is not None)
+
+    # Check 22: API health status is ok
+    check(
+        "API health status ok",
+        data is not None and data.get("status") == "ok"
+    )
+
+    # Check 23: API database is connected
+    check(
+        "API database connected",
+        data is not None and data.get("database") == "connected"
+    )
+
+    # Check 24: API returns city data
+    cities = fetch_api("/api/aqi")
+    check(
+        "API returns city data",
+        cities is not None and cities.get("count", 0) > 0
+    )
+
+    # Check 25: API rankings endpoint works
+    rankings = fetch_api("/api/aqi/rankings")
+    check(
+        "API rankings endpoint works",
+        rankings is not None and len(rankings.get("rankings", [])) > 0
+    )
+
     passed_count = sum(1 for s, _ in results if s == "[PASS]")
     failed_count = sum(1 for s, _ in results if s == "[FAIL]")
     total_count = len(results)
@@ -129,9 +172,9 @@ def run_health_check():
     print("==========================================")
 
     if failed_count == 0:
-        print("All systems operational — ready for API layer")
+        print("All systems operational — ready for React frontend")
     else:
-        print("Fix failed checks before building API layer")
+        print("Fix failed checks before building frontend")
 
 
 if __name__ == "__main__":
