@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export function useAQIData() {
   const [cities, setCities] = useState([]);
