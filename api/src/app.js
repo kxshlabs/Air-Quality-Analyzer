@@ -13,7 +13,15 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 // --- Middleware ---
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://air-quality-analyzer-6fp3ts8mz-demond1.vercel.app",
+    /\.vercel\.app$/
+  ],
+  methods: ["GET"],
+  credentials: false
+}));
 app.use(express.json());
 
 // --- Routes ---
