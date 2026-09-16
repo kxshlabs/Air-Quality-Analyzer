@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-const BASE = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000"
 
 export function useAQIData() {
-  const [cities, setCities]           = useState([]);
-  const [rankings, setRankings]       = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState(null);
+  const [cities, setCities] = useState([]);
+  const [rankings, setRankings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
 
   const fetchAll = useCallback(async () => {
@@ -34,9 +34,9 @@ export function useAQIData() {
 }
 
 export function useCityData(cityName) {
-  const [city, setCity]       = useState(null);
+  const [city, setCity] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!cityName) return;
