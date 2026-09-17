@@ -31,11 +31,11 @@ class TestDataFetch(unittest.TestCase):
         self.assertNotEqual(WAQI_TOKEN.strip(), "", "WAQI_API_KEY not found in environment")
 
     def test_cities_list_not_empty(self):
-        """Test that WORLD_CAPITALS list contains exactly 20 unique strings."""
+        """Test that WORLD_CAPITALS list contains exactly 100 unique strings."""
         self.assertGreaterEqual(len(WORLD_CAPITALS), 1, "WORLD_CAPITALS list is empty")
         self.assertTrue(all(isinstance(city, str) for city in WORLD_CAPITALS), "Not all items in WORLD_CAPITALS are strings")
         self.assertEqual(len(WORLD_CAPITALS), len(set(WORLD_CAPITALS)), "Duplicate city names found in WORLD_CAPITALS")
-        self.assertEqual(len(WORLD_CAPITALS), 20, "WORLD_CAPITALS list length is not 20")
+        self.assertEqual(len(WORLD_CAPITALS), 100, "WORLD_CAPITALS list length is not 100")
 
     def test_fetch_city_aqi_returns_dataframe(self):
         """Test fetching AQI for London returns a DataFrame with expected columns and city name."""
@@ -43,7 +43,11 @@ class TestDataFetch(unittest.TestCase):
         self.assertIsInstance(df, pd.DataFrame, "Return value is not a pandas DataFrame")
 
         if not df.empty:
-            expected_cols = ["city", "date", "aqi", "pm25", "pm10", "no2", "co"]
+            expected_cols = [
+                "city", "date", "aqi", "pm25", "pm10", "no2", "co", "so2", "o3",
+                "temperature", "humidity", "wind_speed", "pressure",
+                "dominant_pollutant", "lat", "lng"
+            ]
             self.assertListEqual(list(df.columns), expected_cols, f"DataFrame columns do not match {expected_cols}")
             self.assertEqual(df["city"].iloc[0], "London", "City column value does not match 'London'")
 
@@ -67,7 +71,11 @@ class TestDataFetch(unittest.TestCase):
         self.assertTrue(os.path.exists(RAW_DATA_PATH), f"CSV file {RAW_DATA_PATH} was not created")
         self.assertGreater(len(df), 0, "Fetched CSV has 0 rows")
 
-        expected_cols = ["city", "date", "aqi", "pm25", "pm10", "no2", "co"]
+        expected_cols = [
+            "city", "date", "aqi", "pm25", "pm10", "no2", "co", "so2", "o3",
+            "temperature", "humidity", "wind_speed", "pressure",
+            "dominant_pollutant", "lat", "lng"
+        ]
         self.assertListEqual(list(df.columns), expected_cols, f"CSV columns do not match expected {expected_cols}")
         self.assertEqual(len(df["city"]), len(df["city"].unique()), "Duplicate city names found in saved CSV")
 
