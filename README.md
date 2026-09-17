@@ -1,6 +1,6 @@
 # 🌫️ Air Quality Analyzer
 
-> Real-time global air quality monitoring dashboard — tracking AQI, PM2.5, PM10, NO₂, and CO across 20 major cities worldwide.
+> Real-time global air quality monitoring dashboard — tracking AQI, PM2.5, PM10, NO₂, CO, SO₂, O₃, weather metrics, and exact geo-coordinates across 100 verified active cities worldwide.
 
 ![Status](https://img.shields.io/badge/status-active%20development-violet?style=flat-square)
 ![Stack](https://img.shields.io/badge/stack-MERN-blue?style=flat-square)
@@ -11,7 +11,7 @@
 
 ## 📸 Overview
 
-Air Quality Analyzer is a full-stack MERN project with a Python data pipeline. It fetches live air quality data from the OpenAQ API, cleans and stores it in MongoDB, exposes it via a Node.js REST API, and visualizes it on an interactive React dashboard with a world map.
+Air Quality Analyzer is a full-stack MERN project with a Python data pipeline. It fetches live air quality and weather data from the WAQI API, cleans and stores it in MongoDB Atlas, exposes it via a Node.js REST API, and visualizes it on an interactive React dashboard with a world map.
 
 ---
 
@@ -21,17 +21,17 @@ Air Quality Analyzer is a full-stack MERN project with a Python data pipeline. I
 Air Quality Analyzer/
 ├── backend/               # Python data pipeline
 │   ├── src/
-│   │   ├── data_fetch.py  # OpenAQ API fetcher
-│   │   ├── cleaning.py    # Data cleaning & normalization
-│   │   ├── analysis.py    # AQI calculations & freshness
-│   │   └── db_writer.py   # MongoDB writer
+│   │   ├── data_fetch.py  # WAQI API fetcher (100 active cities)
+│   │   ├── cleaning.py    # Data cleaning, normalization & imputation
+│   │   ├── analysis.py    # AQI calculations & freshness metrics
+│   │   └── db_writer.py   # MongoDB Atlas bulk upsert writer
 │   ├── notebooks/         # Jupyter exploration notebooks
-│   ├── tests/             # Pipeline test suite
+│   ├── tests/             # Pipeline test suite & 25-point health check
 │   └── requirements.txt
 │
 ├── api/                   # Node.js / Express REST API
 │   ├── src/               # Route logic & DB models
-│   ├── models/            # Mongoose schemas
+│   ├── models/            # Mongoose schemas (AqiSnapshot)
 │   ├── routes/            # API route handlers
 │   └── server.js          # Entry point (port 5000)
 │
@@ -54,24 +54,30 @@ Air Quality Analyzer/
 ## ✨ Features
 
 ### 🗺️ Interactive World Map
-- 20 city dots color-coded by AQI severity
+- **100 Active Cities** mapped using exact API latitude and longitude coordinates
 - Hover tooltips showing city name, AQI, and freshness
-- Click any dot to navigate to the city detail page
-- Zoomable & pannable via react-simple-maps
+- Click any marker to navigate to the city detail page
+- Zoomable & pannable via `react-simple-maps`
+
+### 📊 Extended Air Quality & Weather Metrics
+- **6 Key Pollutants**: PM2.5, PM10, NO₂, CO, SO₂, O₃
+- **Dominant Pollutant Detection** per city
+- **Live Weather Data**: Temperature (°C), Humidity (%), Wind Speed (m/s), Barometric Pressure (hPa)
+- **Exact Coordinates**: API-provided lat/lng for accurate global mapping
 
 ### 🏆 Rankings Table
-- All 20 cities ranked by AQI (worst to best)
+- All 100 cities ranked by AQI (worst to best)
 - PM2.5, status label, and freshness badge per row
 - Staggered entrance animations via Framer Motion
 
 ### 🏙️ City Detail Page
 - AQI ring indicator with live color coding
 - Health advisory message based on AQI category
-- Animated pollutant bars (PM2.5, PM10, NO₂, CO) vs WHO limits
+- Animated pollutant breakdown vs WHO standards
 - Data quality and freshness indicators
 
 ### 🌓 Dark / Light Mode
-- Defaults to Deep Violet dark theme
+- Defaults to Deep Violet dark theme (`#0a0a0f`) with cyan accent (`#38bdf8`)
 - Toggle persisted in `localStorage`
 
 ---

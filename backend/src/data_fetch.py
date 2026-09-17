@@ -16,43 +16,61 @@ load_dotenv()
 WAQI_TOKEN = os.getenv("WAQI_API_KEY")
 BASE_URL = "https://api.waqi.info/feed"
 
-WORLD_CAPITALS = [
-    "Beijing",
-    "London",
-    "Paris",
-    "Tokyo",
-    "Seoul",
-    "Bangkok",
-    "Santiago",
-    "Rome",
-    "Delhi",
-    "São Paulo",
-    "Berlin",
-    "Sydney",
-    "New York",
-    "Ottawa",
-    "Mexico City",
-    "Warsaw",
-    "Moscow",
-    "Hanoi",
-    "Singapore",
-    "Ulaanbaatar"
+ACTIVE_CITIES_100 = [
+    # East & Southeast Asia (25)
+    "Beijing", "Shanghai", "Chengdu", "Wuhan", "Shenzhen", "Xian", "Hong Kong", "Macau",
+    "Tokyo", "Osaka", "Nagoya", "Fukuoka", "Sapporo", "Seoul", "Busan", "Incheon",
+    "Gwangju", "Taipei", "Kaohsiung", "Bangkok", "Hanoi", "Singapore", "Jakarta",
+    "Kuala Lumpur", "Chiang Mai",
+
+    # Europe (30)
+    "London", "Paris", "Berlin", "Madrid", "Amsterdam", "Brussels", "Vienna", "Warsaw",
+    "Prague", "Budapest", "Bucharest", "Athens", "Stockholm", "Oslo", "Copenhagen",
+    "Helsinki", "Zurich", "Lisbon", "Dublin", "Barcelona", "Lyon", "Rotterdam",
+    "Edinburgh", "Krakow", "Tallinn", "Ljubljana", "Zagreb", "Bratislava", "Vilnius", "Valparaiso",
+
+    # North & Central America (19)
+    "New York", "Los Angeles", "Chicago", "Houston", "Toronto", "Vancouver", "Ottawa",
+    "Mexico City", "Monterrey", "Guadalajara", "Philadelphia", "Phoenix", "Seattle",
+    "Denver", "Atlanta", "Miami", "Boston", "Portland", "Minneapolis",
+
+    # South America (7)
+    "Sao Paulo", "Santiago", "Lima", "Bogota", "Quito", "Medellin", "Buenos Aires",
+
+    # Oceania (5)
+    "Sydney", "Melbourne", "Brisbane", "Auckland", "Perth",
+
+    # Middle East & Central Asia (9)
+    "Abu Dhabi", "Kuwait City", "Tel Aviv", "Amman", "Tashkent", "Almaty", "Baku", "Tbilisi", "Moscow",
+
+    # South Asia & Africa (5)
+    "Delhi", "Faridabad", "Johannesburg", "Addis Ababa", "Cairo"
 ]
 
-DEFAULT_COLUMNS = ["city", "date", "aqi", "pm25", "pm10", "no2", "co"]
-NUMERIC_COLUMNS = ["aqi", "pm25", "pm10", "no2", "co"]
+# Alias for backwards compatibility with existing test suites
+WORLD_CAPITALS = ACTIVE_CITIES_100
+
+DEFAULT_COLUMNS = [
+    "city", "date", "aqi", "pm25", "pm10", "no2", "co", "so2", "o3",
+    "temperature", "humidity", "wind_speed", "pressure",
+    "dominant_pollutant", "lat", "lng"
+]
+NUMERIC_COLUMNS = [
+    "aqi", "pm25", "pm10", "no2", "co", "so2", "o3",
+    "temperature", "humidity", "wind_speed", "pressure", "lat", "lng"
+]
 RAW_DATA_PATH = os.path.join("data", "raw", "aqi_raw.csv")
 
 
 def fetch_city_aqi(city_name: str) -> pd.DataFrame:
     """
-    Fetches real-time AQI and individual pollutant readings for a specific city.
+    Fetches real-time AQI, pollutants, weather parameters, and coordinates for a specific city.
 
     Parameters:
         city_name (str): Name of the city to query.
 
     Returns:
-        pd.DataFrame: A single-row DataFrame with keys [city, date, aqi, pm25, pm10, no2, co]
+        pd.DataFrame: A single-row DataFrame with extracted fields
                       if successful, or an empty DataFrame if unreachable/no data.
     """
     try:
@@ -70,6 +88,8 @@ def fetch_city_aqi(city_name: str) -> pd.DataFrame:
 
         payload = data.get("data", {})
         iaqi = payload.get("iaqi", {})
+        city_info = payload.get("city", {})
+        geo = city_info.get("geo", [])
 
         reading = {
             "city": city_name,
@@ -78,7 +98,16 @@ def fetch_city_aqi(city_name: str) -> pd.DataFrame:
             "pm25": iaqi.get("pm25", {}).get("v"),
             "pm10": iaqi.get("pm10", {}).get("v"),
             "no2": iaqi.get("no2", {}).get("v"),
-            "co": iaqi.get("co", {}).get("v")
+            "co": iaqi.get("co", {}).get("v"),
+            "so2": iaqi.get("so2", {}).get("v"),
+            "o3": iaqi.get("o3", {}).get("v"),
+            "temperature": iaqi.get("t", {}).get("v"),
+            "humidity": iaqi.get("h", {}).get("v"),
+            "wind_speed": iaqi.get("w", {}).get("v"),
+            "pressure": iaqi.get("p", {}).get("v"),
+            "dominant_pollutant": payload.get("dominentpol"),
+            "lat": geo[0] if len(geo) > 0 else None,
+            "lng": geo[1] if len(geo) > 1 else None
         }
 
         return pd.DataFrame([reading])
@@ -90,19 +119,19 @@ def fetch_city_aqi(city_name: str) -> pd.DataFrame:
 
 def fetch_all_cities() -> pd.DataFrame:
     """
-    Loops through all 20 target world capitals, calls fetch_city_aqi() for each,
+    Loops through all 100 active target cities, calls fetch_city_aqi() for each,
     aggregates valid results, and exports the data to data/raw/aqi_raw.csv.
 
     Returns:
         pd.DataFrame: Combined DataFrame containing readings for all valid cities.
     """
-    print(f"Starting WAQI data fetch for {len(WORLD_CAPITALS)} world capitals...")
+    print(f"Starting WAQI data fetch for {len(ACTIVE_CITIES_100)} active cities...")
 
     all_dfs = []
     skipped_cities = []
 
-    for idx, city in enumerate(WORLD_CAPITALS, start=1):
-        print(f"[{idx}/{len(WORLD_CAPITALS)}] Fetching {city}...")
+    for idx, city in enumerate(ACTIVE_CITIES_100, start=1):
+        print(f"[{idx}/{len(ACTIVE_CITIES_100)}] Fetching {city}...")
         df_city = fetch_city_aqi(city)
 
         if not df_city.empty and df_city["aqi"].notna().any():
@@ -112,7 +141,7 @@ def fetch_all_cities() -> pd.DataFrame:
             skipped_cities.append(city)
             print(f"  [-] {city} — No data available, skipping")
 
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     os.makedirs(os.path.dirname(RAW_DATA_PATH), exist_ok=True)
 

@@ -12,8 +12,10 @@ import pandas as pd
 
 RAW_DATA_PATH = os.path.join("data", "raw", "aqi_raw.csv")
 PROCESSED_DATA_PATH = os.path.join("data", "processed", "aqi_clean.csv")
-POLLUTANT_COLS = ["pm25", "pm10", "no2", "co"]
-NUMERIC_COLS = ["aqi"] + POLLUTANT_COLS
+POLLUTANT_COLS = ["pm25", "pm10", "no2", "co", "so2", "o3"]
+WEATHER_COLS = ["temperature", "humidity", "wind_speed", "pressure"]
+GEO_COLS = ["lat", "lng"]
+NUMERIC_COLS = ["aqi"] + POLLUTANT_COLS + WEATHER_COLS + GEO_COLS
 
 
 def load_raw_data(file_path=RAW_DATA_PATH):

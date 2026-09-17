@@ -23,6 +23,10 @@ frontend/build/
 .DS_Store
 Thumbs.db
 
-#agents
+# Test files & scripts
+test_cities.py
+test_results.json
+
+# agents
 .agents/
 
