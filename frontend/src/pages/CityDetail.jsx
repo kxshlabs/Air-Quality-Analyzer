@@ -8,6 +8,7 @@ import {
   formatAQI,
 } from "../utils/aqiHelpers";
 import AQIRing from "../components/AQIRing";
+import HealthAdvisor from "../components/HealthAdvisor";
 import FreshnessBadge from "../components/FreshnessBadge";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -66,13 +67,8 @@ export default function CityDetail() {
         </div>
       </div>
 
-      {/* Health message */}
-      <div className="card p-4 border-l-4" style={{ borderColor: color }}>
-        <p className="text-sm font-medium mb-1">Health Advisory</p>
-        <p className="text-sm text-light-muted dark:text-dark-muted">
-          {getHealthMessage(city.aqi)}
-        </p>
-      </div>
+      {/* Health Advisory */}
+      <HealthAdvisor aqi={city.aqi} />
 
       {/* Pollutant bars */}
       <div className="card p-5 space-y-4">

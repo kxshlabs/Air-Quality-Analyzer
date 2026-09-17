@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import Rankings from "./pages/Rankings";
 import CityDetail from "./pages/CityDetail";
 
+import Compare from "./pages/Compare";
+
 function AppShell() {
   const { lastUpdated } = useAQIData();
 
@@ -17,6 +19,7 @@ function AppShell() {
           {[
             { to: "/",         label: "🗺️ Map"     },
             { to: "/rankings", label: "🏆 Rankings" },
+            { to: "/compare",  label: "⚖️ Compare"  },
           ].map(({ to, label }) => (
             <NavLink
               key={to}
@@ -39,6 +42,7 @@ function AppShell() {
         <Routes>
           <Route path="/"           element={<Dashboard />} />
           <Route path="/rankings"   element={<Rankings />} />
+          <Route path="/compare"    element={<Compare />} />
           <Route path="/city/:name" element={<CityDetail />} />
         </Routes>
       </main>

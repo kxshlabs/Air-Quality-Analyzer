@@ -16,6 +16,8 @@ import StatCard from "../components/StatCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 
+import HazardousBanner from "../components/HazardousBanner";
+
 const GEO_URL =
   "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -77,6 +79,9 @@ export default function Dashboard() {
       animate={{ opacity: 1 }}
       className="max-w-7xl mx-auto px-4 py-6 space-y-6"
     >
+      {/* High Pollution Alert Banner */}
+      <HazardousBanner cities={cities} />
+
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard
