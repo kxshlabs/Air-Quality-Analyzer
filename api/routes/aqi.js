@@ -1,10 +1,10 @@
 /**
- * AQI routes — mounted at /api/aqi
+ * AQI routes â€” mounted at /api/aqi
  *
- * GET /api/aqi            — all cities sorted by aqi desc
- * GET /api/aqi/fresh      — Live/Recent cities only
- * GET /api/aqi/rankings   — ranked list + summary stats
- * GET /api/aqi/:city      — single city by name (case-insensitive)
+ * GET /api/aqi            â€” all cities sorted by aqi desc
+ * GET /api/aqi/fresh      â€” Live/Recent cities only
+ * GET /api/aqi/rankings   â€” ranked list + summary stats
+ * GET /api/aqi/:city      â€” single city by name (case-insensitive)
  *
  * /fresh and /rankings MUST be declared before /:city
  * to prevent Express treating them as city params.
@@ -18,7 +18,7 @@ const router = Router();
 /**
  * GET /api/aqi
  * Returns all cities sorted by aqi descending.
- * One document per city — no aggregation needed.
+ * One document per city â€” no aggregation needed.
  */
 router.get("/", async (_req, res, next) => {
   try {
@@ -59,20 +59,17 @@ router.get("/fresh", async (_req, res, next) => {
  */
 router.get("/rankings", async (_req, res, next) => {
   try {
-    const cities = await AqiSnapshot
+    const cities = (await AqiSnapshot
       .find({}, { __v: 0, _id: 0 })
-      .sort({ aqi: -1 })
-      .lean();
+      .lean())
+      .filter((c) => c.aqi != null)
+      .sort((a, b) => b.aqi - a.aqi);
 
     const rankings = cities.map((city, i) => ({ ...city, rank: i + 1 }));
 
-    const aqiValues = cities
-      .map((c) => c.aqi)
-      .filter((v) => v !== null && v !== undefined);
-
     const average_aqi =
-      aqiValues.length > 0
-        ? Math.round((aqiValues.reduce((a, b) => a + b, 0) / aqiValues.length) * 10) / 10
+      cities.length > 0
+        ? Math.round((cities.reduce((a, b) => a + b.aqi, 0) / cities.length) * 10) / 10
         : null;
 
     res.json({
