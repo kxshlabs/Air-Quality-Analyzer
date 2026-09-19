@@ -18,8 +18,7 @@
 
 | Surface | URL |
 |---------|-----|
-| 🌐 Frontend | https://frontend-mu-ebon-54.vercel.app |
-| ⚙️ API Health | https://air-quality-analyzer-mezg.onrender.com/health |
+| 🌐 Frontend | https://air-quality-analyzer.vercel.app |
 
 ---
 
@@ -66,7 +65,6 @@ Frontend (React/Vercel) → API (Node/Render) → MongoDB Atlas
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/health` | Health check route verifying database connectivity and city snapshot counts |
 | `GET` | `/api/aqi` | Returns all city AQI snapshots sorted by AQI level descending |
 | `GET` | `/api/aqi/fresh` | Returns only cities with active/recent data freshness status |
 | `GET` | `/api/aqi/rankings` | Returns ranked list of all cities alongside summary statistics |
