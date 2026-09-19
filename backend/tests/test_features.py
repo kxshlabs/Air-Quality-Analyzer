@@ -9,7 +9,7 @@ import sys
 
 import requests
 
-BASE_URL = os.getenv("API_URL", "https://air-quality-analyzer.onrender.com")
+BASE_URL = os.getenv("API_URL", "https://air-quality-analyzer-mezg.onrender.com")
 
 session = requests.Session()
 passed = 0
@@ -18,7 +18,7 @@ total = 5
 
 def result(name, ok, detail=""):
     global passed
-    status = "[PASS]" if ok else f"[FAIL]{' — ' + detail if detail else ''}"
+    status = "[PASS]" if ok else f"[FAIL]{' â€” ' + detail if detail else ''}"
     print(f"{status} {name}")
     if ok:
         passed += 1
@@ -66,7 +66,7 @@ def test_city_delhi():
 
 def main():
     print("==========================================")
-    print("AIR QUALITY ANALYZER — FEATURE TESTS")
+    print("AIR QUALITY ANALYZER â€” FEATURE TESTS")
     print(f"Target: {BASE_URL}")
     print("==========================================")
     for test in (test_health, test_aqi_all, test_aqi_fresh, test_rankings, test_city_delhi):
