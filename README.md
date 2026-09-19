@@ -4,8 +4,8 @@
 
 ## Live Demo
 
-- **Frontend:** https://air-quality-analyzer.vercel.app
-- **API:** https://air-quality-analyzer.onrender.com
+- **Frontend:** https://frontend-mu-ebon-54.vercel.app
+- **API:** https://air-quality-analyzer-mezg.onrender.com
 
 ## Tech Stack
 
@@ -40,7 +40,7 @@ NODE_ENV=production
 
 ### Frontend
 ```
-VITE_API_URL=https://air-quality-analyzer.onrender.com
+VITE_API_URL=https://air-quality-analyzer-mezg.onrender.com
 ```
 
 ## Local Development
