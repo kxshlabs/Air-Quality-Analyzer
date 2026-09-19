@@ -19,6 +19,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
+      - name: Debug token
+        run: |
+          python -c "import os; t=os.environ.get('WAQI_TOKEN','NOT_SET'); print(f'Token length: {len(t)}, First 8 chars: {t[:8]}')"
+        env:
+          WAQI_TOKEN: ${{ secrets.WAQI_TOKEN }}
+
       - name: Run data pipeline
         env:
           WAQI_TOKEN: ${{ secrets.WAQI_TOKEN }}
