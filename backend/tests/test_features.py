@@ -18,7 +18,7 @@ total = 5
 
 def result(name, ok, detail=""):
     global passed
-    status = "[PASS]" if ok else f"[FAIL]{' â€” ' + detail if detail else ''}"
+    status = "[PASS]" if ok else f"[FAIL]{' Ã¢â‚¬â€ ' + detail if detail else ''}"
     print(f"{status} {name}")
     if ok:
         passed += 1
@@ -53,8 +53,10 @@ def test_rankings():
     rankings = data.get("rankings", [])
     ok = r.status_code == 200 and isinstance(rankings, list) and len(rankings) > 1
     if ok:
+        ok = all(c.get("aqi") is not None for c in rankings)
+    if ok:
         ok = rankings[0]["aqi"] >= rankings[-1]["aqi"]
-    result("GET /api/aqi/rankings returns sorted array by AQI", ok)
+    result("GET /api/aqi/rankings returns sorted array by AQI with no null aqi", ok)
 
 
 def test_city_delhi():
@@ -66,7 +68,7 @@ def test_city_delhi():
 
 def main():
     print("==========================================")
-    print("AIR QUALITY ANALYZER â€” FEATURE TESTS")
+    print("AIR QUALITY ANALYZER Ã¢â‚¬â€ FEATURE TESTS")
     print(f"Target: {BASE_URL}")
     print("==========================================")
     for test in (test_health, test_aqi_all, test_aqi_fresh, test_rankings, test_city_delhi):
