@@ -34,4 +34,4 @@ jobs:
       - name: Health Check
         run: |
           sleep 30
-          curl --fail https://air-quality-analyzer.onrender.com/health
+          curl --fail https://air-quality-analyzer-mezg.onrender.com/health
