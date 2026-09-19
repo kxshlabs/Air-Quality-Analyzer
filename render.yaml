@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: air-quality-analyzer-api
+    env: node
+    region: oregon
+    plan: free
+    rootDir: api
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: WAQI_TOKEN
+        sync: false
