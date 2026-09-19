@@ -9,7 +9,7 @@ import os
 import sys
 import urllib.request
 
-BASE_URL = os.getenv("API_URL", "https://air-quality-analyzer.onrender.com")
+BASE_URL = os.getenv("API_URL", "https://air-quality-analyzer-mezg.onrender.com")
 
 ENDPOINTS = [
     "/health",
@@ -38,7 +38,7 @@ def check(endpoint):
 
 def main():
     print("==========================================")
-    print("AIR QUALITY ANALYZER — API HEALTH CHECK")
+    print("AIR QUALITY ANALYZER â€” API HEALTH CHECK")
     print(f"Target: {BASE_URL}")
     print("==========================================")
     for ep in ENDPOINTS:
