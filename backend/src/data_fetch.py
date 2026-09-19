@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-WAQI_TOKEN = os.getenv("WAQI_API_KEY")
+WAQI_TOKEN = os.getenv("WAQI_TOKEN")
 BASE_URL = "https://api.waqi.info/feed"
 
 ACTIVE_CITIES_100 = [

@@ -15,7 +15,7 @@ from pymongo.errors import ConnectionFailure, BulkWriteError
 # Load environment variables from project root .env file
 load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 
-MONGO_URI = os.getenv("MONGO_URI")
+MONGO_URI = os.getenv("MONGODB_URI")
 
 DB_NAME = "airquality"
 COLLECTION_NAME = "aqi_snapshots"
