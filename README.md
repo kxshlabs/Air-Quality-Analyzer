@@ -10,7 +10,7 @@
 ![Python](https://img.shields.io/badge/Pipeline-Python-3776AB?logo=python)
 ![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react)
 ![Node](https://img.shields.io/badge/API-Node.js-339933?logo=node.js)
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -198,3 +198,41 @@ npm run dev
 │   └── vite.config.js
 └── README.md
 ```
+
+---
+
+## 📈 Project Progress
+
+![Progress](https://img.shields.io/badge/Progress-65%25-blue?style=flat-square)
+
+| Milestone | Status |
+|-----------|--------|
+| Data pipeline (fetch → clean → store) | ✅ Complete |
+| REST API with 5 endpoints | ✅ Complete |
+| Frontend with map + city cards | ✅ Complete |
+| Dark/light mode | ✅ Complete |
+| CI/CD automated every 6 hours | ✅ Complete |
+| Vercel + Render deployment | ✅ Complete |
+| 100 cities across 6 continents | ✅ Complete |
+| Professional README + MIT license | ✅ Complete |
+| Data quality indicators on frontend | 🔲 Planned |
+| Historical AQI trend charts | 🔲 Planned |
+| AQI forecast using trend analysis | 🔲 Planned |
+| Email/push alerts for high AQI | 🔲 Planned |
+| PWA mobile support | 🔲 Planned |
+| Expand to 200+ cities | 🔲 Planned |
+
+---
+
+## 🔮 Roadmap
+
+- [x] Real-time data pipeline with automated refresh
+- [x] REST API with rankings, fresh data, and city detail endpoints
+- [x] Interactive world map with color-coded AQI markers
+- [x] Full deployment with CI/CD pipeline
+- [ ] Data quality transparency indicators per city
+- [ ] Historical AQI trend charts per city
+- [ ] AQI forecast using trend analysis
+- [ ] Email/push alerts when AQI exceeds thresholds
+- [ ] PWA support for mobile installation
+- [ ] Expand coverage to 200+ cities
