@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { formatAQI, getAQIColor, getAQILabel } from "../utils/aqiHelpers";
+import { formatAQI, getAQIColor } from "../utils/aqiHelpers";
 
 export default function HazardousBanner({ cities }) {
   if (!cities || cities.length === 0) return null;

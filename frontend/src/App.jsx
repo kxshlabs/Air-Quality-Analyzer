@@ -1,49 +1,31 @@
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { useAQIData } from "./hooks/useAQIData";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
+import Analytics from "./pages/Analytics";
 import Rankings from "./pages/Rankings";
 import CityDetail from "./pages/CityDetail";
 
-import Compare from "./pages/Compare";
-
 function AppShell() {
-  const { lastUpdated } = useAQIData();
+  const { cities, rankings, refetch } = useAQIData();
 
   return (
-    <div className="min-h-screen bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text">
-      <Navbar lastUpdated={lastUpdated} />
-      <nav className="border-b border-light-border dark:border-dark-border">
-        <div className="max-w-7xl mx-auto px-4 flex gap-1 py-1">
-          {[
-            { to: "/",         label: "🗺️ Map"     },
-            { to: "/rankings", label: "🏆 Rankings" },
-            { to: "/compare",  label: "⚖️ Compare"  },
-          ].map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end
-              className={({ isActive }) =>
-                `px-3 py-2 text-sm rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-accent/20 text-accent font-medium"
-                    : "text-light-muted dark:text-dark-muted hover:text-accent"
-                }`
-              }
-            >
-              {label}
-            </NavLink>
-          ))}
-        </div>
-      </nav>
-      <main>
+    <div className="min-h-screen bg-light-bg dark:bg-[#06060f] text-light-text dark:text-dark-text flex flex-col font-sans transition-colors duration-300">
+      <Navbar
+        globalAqi={rankings?.average_aqi}
+        cities={cities}
+        onRefresh={refetch}
+      />
+      <main className="flex-1">
         <Routes>
-          <Route path="/"           element={<Dashboard />} />
-          <Route path="/rankings"   element={<Rankings />} />
-          <Route path="/compare"    element={<Compare />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/rankings" element={<Rankings />} />
           <Route path="/city/:name" element={<CityDetail />} />
+          {/* Legacy compare route redirects to analytics duel */}
+          <Route path="/compare" element={<Navigate to="/analytics" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
