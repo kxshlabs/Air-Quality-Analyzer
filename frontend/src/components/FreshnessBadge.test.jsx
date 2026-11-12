@@ -17,3 +17,4 @@ describe("FreshnessBadge Component", () => {
     expect(badge.className).toContain("badge-stale");
   });
 });
+

@@ -24,3 +24,4 @@ describe("StatCard Component", () => {
     expect(screen.getByText("78")).toBeInTheDocument();
   });
 });
+

@@ -24,3 +24,4 @@ describe("ErrorMessage Component", () => {
     expect(handleRetry).toHaveBeenCalledTimes(1);
   });
 });
+

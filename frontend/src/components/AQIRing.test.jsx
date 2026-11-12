@@ -17,3 +17,4 @@ describe("AQIRing Component", () => {
     expect(screen.getByText("AQI")).toBeInTheDocument();
   });
 });
+
