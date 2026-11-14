@@ -78,3 +78,4 @@ describe("Analytics Page Component", () => {
     });
   });
 });
+
