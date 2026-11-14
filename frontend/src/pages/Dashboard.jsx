@@ -234,12 +234,11 @@ export default function Dashboard() {
         className="w-full h-full z-0"
         style={{ background: "#06060f" }}
       >
-        {/* CartoDB Dark Matter Tiles */}
+        {/* OpenStreetMap Tiles */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_matter_no_labels/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
-          maxZoom={20}
+          attribution='&copy; OpenStreetMap contributors'
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
         />
 
         <MapFlyController targetCoord={targetCoord} />
