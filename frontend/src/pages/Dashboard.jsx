@@ -234,10 +234,11 @@ export default function Dashboard() {
         className="w-full h-full z-0"
         style={{ background: "#06060f" }}
       >
-        {/* Stadia Maps Alidade Smooth Dark Tiles */}
+        {/* CartoDB Dark Matter Tiles */}
         <TileLayer
-          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_matter_no_labels/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
           maxZoom={20}
         />
 
