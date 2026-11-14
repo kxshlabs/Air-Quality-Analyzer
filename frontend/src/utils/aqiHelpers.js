@@ -89,6 +89,15 @@ export function getBreathingSpeed(aqi) {
   return "2s";
 }
 
+export function getBreathingDuration(aqi) {
+  if (aqi == null || aqi <= 50) return "7s";
+  if (aqi <= 100) return "5s";
+  if (aqi <= 150) return "3.5s";
+  if (aqi <= 200) return "2.5s";
+  if (aqi <= 300) return "1.5s";
+  return "1s";
+}
+
 export function getBreathingTint(aqi) {
   if (aqi === null || aqi === undefined) return "rgba(100,116,139,0.05)";
   if (aqi <= 50)  return "rgba(34,197,94,0.06)";
@@ -107,3 +116,55 @@ export const AQI_BANDS = [
   { label: "Very Unhealthy",      range: "201–300", color: "#a855f7" },
   { label: "Hazardous",           range: "301+",    color: "#7f1d1d" },
 ];
+
+export const RISK_LEVELS = [
+  { level: 0, label: "Safe", color: "#22c55e", advice: "Air quality is good. Safe for all outdoor activities." },
+  { level: 1, label: "Low Risk", color: "#22c55e", advice: "Low health risk. Safe for most individuals to engage in outdoor activities." },
+  { level: 2, label: "Moderate Risk", color: "#eab308", advice: "Moderate risk. Sensitive individuals should consider taking breaks during prolonged exertion." },
+  { level: 3, label: "High Risk", color: "#f97316", advice: "Increased health risk. Reduce prolonged or heavy outdoor exertion." },
+  { level: 4, label: "Very High Risk", color: "#ef4444", advice: "Significant health risk. Limit outdoor exposure and consider wearing an N95 mask." },
+  { level: 5, label: "Dangerous", color: "#7f1d1d", advice: "Critical health hazard. Avoid all outdoor activity and stay indoors in filtered air." },
+];
+
+export function getRiskLevel(aqi, { ageGroup = "Adult", outdoorHours = "1h", respiratory = false } = {}) {
+  let base = 0;
+  if (aqi == null) {
+    base = 0;
+  } else if (aqi <= 50) {
+    base = 0;
+  } else if (aqi <= 100) {
+    base = 1;
+  } else if (aqi <= 150) {
+    base = 2;
+  } else if (aqi <= 200) {
+    base = 3;
+  } else if (aqi <= 300) {
+    base = 4;
+  } else {
+    base = 5;
+  }
+
+  const isChildOrSenior =
+    ageGroup === "child" ||
+    ageGroup === "senior" ||
+    ageGroup === "Child (< 12)" ||
+    ageGroup === "Senior (65+)" ||
+    ageGroup === "Child" ||
+    ageGroup === "Senior";
+
+  if (isChildOrSenior) {
+    base += 1;
+  }
+
+  if (respiratory === true || respiratory === "Yes" || respiratory === "yes") {
+    base += 1;
+  }
+
+  const hoursNum = typeof outdoorHours === "number" ? outdoorHours : parseInt(outdoorHours, 10);
+  if (hoursNum >= 4 || outdoorHours === "4h" || outdoorHours === "8h+" || outdoorHours === "8h") {
+    base += 1;
+  }
+
+  const index = Math.min(5, Math.max(0, base));
+  return RISK_LEVELS[index];
+}
