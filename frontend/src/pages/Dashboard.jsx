@@ -234,12 +234,11 @@ export default function Dashboard() {
         className="w-full h-full z-0"
         style={{ background: "#06060f" }}
       >
-        {/* Dark CartoDB Tiles */}
+        {/* Stadia Maps Alidade Smooth Dark Tiles */}
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
-          maxZoom={19}
+          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
+          maxZoom={20}
         />
 
         <MapFlyController targetCoord={targetCoord} />
